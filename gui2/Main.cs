@@ -5,11 +5,12 @@ namespace gui2
         public Main()
         {
             InitializeComponent();
+
         }
 
         private void btnEnter_Click(object sender, EventArgs e)
         {
-            Control form2 = new Control();
+            ControlForm form2 = new ControlForm();
             form2.Show();
             this.Hide();
         }
