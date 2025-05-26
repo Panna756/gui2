@@ -31,13 +31,13 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Control));
             panel1 = new Panel();
             panel2 = new Panel();
-            label1 = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            label4 = new Label();
-            label5 = new Label();
-            label6 = new Label();
             label7 = new Label();
+            label6 = new Label();
+            label5 = new Label();
+            label4 = new Label();
+            label3 = new Label();
+            label2 = new Label();
+            label1 = new Label();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
@@ -63,60 +63,16 @@
             panel2.Size = new Size(68, 423);
             panel2.TabIndex = 0;
             // 
-            // label1
+            // label7
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.ForeColor = Color.White;
-            label1.Location = new Point(9, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(52, 59);
-            label1.TabIndex = 0;
-            label1.Text = "C";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
-            label2.ForeColor = Color.White;
-            label2.Location = new Point(9, 59);
-            label2.Name = "label2";
-            label2.Size = new Size(58, 59);
-            label2.TabIndex = 1;
-            label2.Text = "O";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
-            label3.ForeColor = Color.White;
-            label3.Location = new Point(9, 118);
-            label3.Name = "label3";
-            label3.Size = new Size(59, 59);
-            label3.TabIndex = 2;
-            label3.Text = "N";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
-            label4.ForeColor = Color.White;
-            label4.Location = new Point(9, 177);
-            label4.Name = "label4";
-            label4.Size = new Size(50, 59);
-            label4.TabIndex = 3;
-            label4.Text = "T";
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
-            label5.ForeColor = Color.White;
-            label5.Location = new Point(9, 236);
-            label5.Name = "label5";
-            label5.Size = new Size(53, 59);
-            label5.TabIndex = 4;
-            label5.Text = "R";
+            label7.AutoSize = true;
+            label7.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
+            label7.ForeColor = Color.White;
+            label7.Location = new Point(13, 354);
+            label7.Name = "label7";
+            label7.Size = new Size(47, 59);
+            label7.TabIndex = 6;
+            label7.Text = "L";
             // 
             // label6
             // 
@@ -129,16 +85,60 @@
             label6.TabIndex = 5;
             label6.Text = "O";
             // 
-            // label7
+            // label5
             // 
-            label7.AutoSize = true;
-            label7.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
-            label7.ForeColor = Color.White;
-            label7.Location = new Point(13, 354);
-            label7.Name = "label7";
-            label7.Size = new Size(47, 59);
-            label7.TabIndex = 6;
-            label7.Text = "L";
+            label5.AutoSize = true;
+            label5.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
+            label5.ForeColor = Color.White;
+            label5.Location = new Point(9, 236);
+            label5.Name = "label5";
+            label5.Size = new Size(53, 59);
+            label5.TabIndex = 4;
+            label5.Text = "R";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
+            label4.ForeColor = Color.White;
+            label4.Location = new Point(9, 177);
+            label4.Name = "label4";
+            label4.Size = new Size(50, 59);
+            label4.TabIndex = 3;
+            label4.Text = "T";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
+            label3.ForeColor = Color.White;
+            label3.Location = new Point(9, 118);
+            label3.Name = "label3";
+            label3.Size = new Size(59, 59);
+            label3.TabIndex = 2;
+            label3.Text = "N";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold);
+            label2.ForeColor = Color.White;
+            label2.Location = new Point(9, 59);
+            label2.Name = "label2";
+            label2.Size = new Size(58, 59);
+            label2.TabIndex = 1;
+            label2.Text = "O";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 32.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.ForeColor = Color.White;
+            label1.Location = new Point(9, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(52, 59);
+            label1.TabIndex = 0;
+            label1.Text = "C";
             // 
             // Control
             // 
