@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ControlForm));
             panel1 = new Panel();
+            invertRollCheckBox = new CheckBox();
+            invertPitchCheckBox = new CheckBox();
             rollLabel = new Label();
             pitchLabel = new Label();
             middleBtn = new Button();
@@ -44,12 +46,16 @@
             label3 = new Label();
             label2 = new Label();
             label1 = new Label();
+            backBtn = new Button();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
             // 
+            panel1.Controls.Add(backBtn);
+            panel1.Controls.Add(invertRollCheckBox);
+            panel1.Controls.Add(invertPitchCheckBox);
             panel1.Controls.Add(rollLabel);
             panel1.Controls.Add(pitchLabel);
             panel1.Controls.Add(middleBtn);
@@ -61,6 +67,26 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(669, 705);
             panel1.TabIndex = 0;
+            // 
+            // invertRollCheckBox
+            // 
+            invertRollCheckBox.AutoSize = true;
+            invertRollCheckBox.Location = new Point(325, 132);
+            invertRollCheckBox.Name = "invertRollCheckBox";
+            invertRollCheckBox.Size = new Size(117, 29);
+            invertRollCheckBox.TabIndex = 7;
+            invertRollCheckBox.Text = "Invert Roll";
+            invertRollCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // invertPitchCheckBox
+            // 
+            invertPitchCheckBox.AutoSize = true;
+            invertPitchCheckBox.Location = new Point(325, 97);
+            invertPitchCheckBox.Name = "invertPitchCheckBox";
+            invertPitchCheckBox.Size = new Size(126, 29);
+            invertPitchCheckBox.TabIndex = 6;
+            invertPitchCheckBox.Text = "Invert Pitch";
+            invertPitchCheckBox.UseVisualStyleBackColor = true;
             // 
             // rollLabel
             // 
@@ -220,6 +246,16 @@
             label1.TabIndex = 0;
             label1.Text = "C";
             // 
+            // backBtn
+            // 
+            backBtn.Location = new Point(104, 20);
+            backBtn.Name = "backBtn";
+            backBtn.Size = new Size(112, 34);
+            backBtn.TabIndex = 8;
+            backBtn.Text = "<Back";
+            backBtn.UseVisualStyleBackColor = true;
+            backBtn.Click += backBtn_Click;
+            // 
             // ControlForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -229,7 +265,6 @@
             ClientSize = new Size(1906, 875);
             Controls.Add(panel2);
             Controls.Add(panel1);
-            FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4, 5, 4, 5);
             Name = "ControlForm";
             StartPosition = FormStartPosition.CenterScreen;
@@ -258,5 +293,8 @@
         private Button middleBtn;
         private Label rollLabel;
         private Label pitchLabel;
+        private CheckBox invertRollCheckBox;
+        private CheckBox invertPitchCheckBox;
+        private Button backBtn;
     }
 }

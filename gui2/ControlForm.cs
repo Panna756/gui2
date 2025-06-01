@@ -1,166 +1,123 @@
-﻿using System;
+﻿using gui2;
+using Microsoft.FlightSimulator.SimConnect;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Diagnostics;
 
 
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+public struct PlaneAttitude
+{
+    public double pitch;
+    public double bank;
+}
 
 
 namespace gui2
 {
-    public partial class ControlForm : Form
+    public partial class ControlForm : DesignableForm
     {
-        private bool readyActive = false;
-        private string udpIp = "192.168.0.125";
-        private int udpPort = 5000;
-        private string sourceIp = "192.168.0.131";
-        private int sourcePort = 10000;
+        private float pitchRad = 0f;
+        private float rollRad = 0f;
+
+        protected override (float, float) GetSensorData() => (pitchRad, rollRad);
+
+        protected override Label PitchLabel => this.pitchLabel;
+        protected override Label RollLabel => this.rollLabel;
+
+        protected override string UdpIp => "192.168.0.125";
+        protected override int UdpPort => 5000;
+        protected override string SourceIp => "192.168.0.131";
+        protected override int SourcePort => 10000;
+
+        //simconnect
+        private SimConnect? simconnect;
+        const int WM_USER_SIMCONNECT = 0x0402;
+
+        //รับค่าจาก sim
+        enum DEFINITIONS { PlaneAttitude }
+        enum DATA_REQUESTS { RequestAttitude }
+
+
         public ControlForm()
         {
             InitializeComponent();
 
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            //timer.Interval = 10; // 10ms
-            //timer.Tick += (s, e) => UpdateData();
-            //timer.Start();
-
-        }
-        private void UpdateData()
-        {
-            try
+            if (LicenseManager.UsageMode != LicenseUsageMode.Designtime)
             {
-                // สมมติคุณมีตัวแปร pitchRad / rollRad มาจากเซนเซอร์หรือ SimConnect
-                float pitchRad = 0.0f;
-                float rollRad = 0.0f;
-
-                float pitchDeg = -pitchRad * (180f / (float)Math.PI);
-                float rollDeg = -rollRad * (180f / (float)Math.PI);
-
-                // Limit ±15°
-                pitchDeg = Math.Max(Math.Min(pitchDeg, 15f), -15f);
-                rollDeg = Math.Max(Math.Min(rollDeg, 15f), -15f);
-
-                // อัปเดต UI
-                pitchLabel.Text = $"Pitch: {pitchDeg:F2}°";
-                rollLabel.Text = $"Roll: {rollDeg:F2}°";
-
-                // ถ้าเปิด Ready Mode → ส่งแพ็กเกจแบบ real-time
-                if (readyActive)
+                try
                 {
-                    float[] dofs = new float[6] { pitchDeg, rollDeg, 0f, 0f, 0f, 0f };
-                    byte[] packet = CreatePacket(9, dofs);
-                    SendPacketOnce(packet);
-                }
-            }
-            catch (Exception ex)
-            {
-                pitchLabel.Text = "Pitch: ERROR";
-                rollLabel.Text = "Roll: ERROR";
-                Console.WriteLine("UpdateData() Error: " + ex.Message);
-            }
-        }
-        private byte[] CreatePacket(byte cmd, float[] dof = null)
-        {
-            byte ID = 55;
-            byte SubCmd = 0;
-            byte FileNum = 0;
-            byte CyChoose = 0;
-            byte DO = 0;
-            byte JogSpeed = 0;
-            ushort padding = 0; // สำหรับ alignment
-
-            float[] DOFS = dof ?? new float[6];  // [0,0,0,0,0,0]
-            float[] Amp = new float[6];
-            float[] Fre = new float[6];
-            float[] Pha = new float[6];
-            float[] Pos = new float[6];
-            float[] Spd = new float[6];
-            float[] Vxyz = new float[3];
-            float[] Axyz = new float[3];
-
-            uint Time = (uint)(DateTimeOffset.Now.ToUnixTimeSeconds() & 0xFFFFFFFF);
-
-            List<byte> bytes = new List<byte>();
-
-            // เพิ่มค่าตามฟอร์แมต Python: '<B B B B B B H 6f 6f 6f 6f 6f 6f 3f 3f I'
-            bytes.Add(ID);
-            bytes.Add(cmd);
-            bytes.Add(SubCmd);
-            bytes.Add(FileNum);
-            bytes.Add(CyChoose);
-            bytes.Add(DO);
-            bytes.Add(JogSpeed);
-            bytes.AddRange(BitConverter.GetBytes(padding));
-
-            void AddFloatArray(float[] arr)
-            {
-                foreach (var f in arr)
-                    bytes.AddRange(BitConverter.GetBytes(f));
-            }
-
-            AddFloatArray(DOFS);
-            AddFloatArray(Amp);
-            AddFloatArray(Fre);
-            AddFloatArray(Pha);
-            AddFloatArray(Pos);
-            AddFloatArray(Spd);
-            AddFloatArray(Vxyz);
-            AddFloatArray(Axyz);
-
-            bytes.AddRange(BitConverter.GetBytes(Time));
-
-            return bytes.ToArray();
-        }
-        private void SendPacket(byte cmd, float[] dof = null)
-        {
-            try
-            {
-                using (UdpClient udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(sourceIp), sourcePort)))
-                {
-                    IPEndPoint remoteEP = new IPEndPoint(IPAddress.Parse(udpIp), udpPort);
-
-                    for (int i = 0; i < 5; i++)
+                    SetupSimConnect();
+                    System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer { Interval = 100 };
+                    timer.Tick += (s, e) =>
                     {
-                        byte[] packet = CreatePacket(cmd, dof);
-                        udpClient.Send(packet, packet.Length, remoteEP);
-                        System.Threading.Thread.Sleep(50); // delay 50ms
-                    }
-
-                    Debug.WriteLine("All packets sent.");
+                        simconnect.RequestDataOnSimObject(
+                            DATA_REQUESTS.RequestAttitude,
+                            DEFINITIONS.PlaneAttitude,
+                            SimConnect.SIMCONNECT_OBJECT_ID_USER,
+                            SIMCONNECT_PERIOD.ONCE,
+                            SIMCONNECT_DATA_REQUEST_FLAG.DEFAULT,
+                            0, // origin
+                            0, // interval
+                            0  // limit
+                        );
+                    };
+                    timer.Start();
+                    Debug.WriteLine("SimConnect connected!");
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("SendPackets error: " + ex.Message);
-            }
-
-
-        }
-        private void SendPacketOnce(byte[] packet)
-        {
-
-            try
-            {
-                using (UdpClient udpClient = new UdpClient(new IPEndPoint(IPAddress.Parse(sourceIp), sourcePort)))
+                catch (Exception ex)
                 {
-                    udpClient.Send(packet, packet.Length, new IPEndPoint(IPAddress.Parse(udpIp), udpPort));
+                    MessageBox.Show("SimConnect connection failed:\n" + ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("SendPacketOnce error: " + ex.Message);
             }
         }
 
+        private void SetupSimConnect()
+        {
+            simconnect = new SimConnect("MyApp", this.Handle, WM_USER_SIMCONNECT, null, 0);
+            simconnect.AddToDataDefinition(DEFINITIONS.PlaneAttitude, "PLANE PITCH DEGREES", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+            simconnect.AddToDataDefinition(DEFINITIONS.PlaneAttitude, "PLANE BANK DEGREES", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+            simconnect.RegisterDataDefineStruct<PlaneAttitude>(DEFINITIONS.PlaneAttitude);
+            simconnect.OnRecvSimobjectData += Simconnect_OnRecvSimobjectData;
+
+        }
+        protected override void DefWndProc(ref Message m)
+        {
+            if (m.Msg == WM_USER_SIMCONNECT)
+                simconnect?.ReceiveMessage();
+            else
+                base.DefWndProc(ref m);
+        }
+
+        private void Simconnect_OnRecvSimobjectData(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA data)
+        {
+            if ((DATA_REQUESTS)data.dwRequestID == DATA_REQUESTS.RequestAttitude)
+            {
+                object[] values = (object[])data.dwData;
+
+                PlaneAttitude att = new PlaneAttitude
+                {
+                    pitch = (double)values[0],
+                    bank = (double)values[1]
+                };
+
+                pitchRad = (float)(att.pitch * Math.PI / 180.0);
+                rollRad = (float)(att.bank * Math.PI / 180.0);
+                UpdateData();
+            }
+        }
 
 
         private void startBtn_Click(object sender, EventArgs e)
@@ -181,7 +138,7 @@ namespace gui2
 
             if (readyActive)
             {
-                readyBtn.Text = "Ready (ON)";
+                readyBtn.Text = "Ready(ON)";
                 Debug.WriteLine("Continuous motion update: ON");
             }
             else
@@ -194,6 +151,13 @@ namespace gui2
         private void middleBtn_Click(object sender, EventArgs e)
         {
             SendPacket(2);
+        }
+
+        private void backBtn_Click(object sender, EventArgs e)
+        {
+            Main main = new Main();
+            main.Show();
+            this.Close();
         }
     }
 }

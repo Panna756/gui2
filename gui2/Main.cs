@@ -14,5 +14,12 @@ namespace gui2
             form2.Show();
             this.Hide();
         }
+
+        private void testBtn_Click(object sender, EventArgs e)
+        {
+            TestForm testForm = new TestForm();
+            testForm.Show();
+            this.Hide();
+        }
     }
 }
